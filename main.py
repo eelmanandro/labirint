@@ -1,4 +1,5 @@
 import pygame
+from typing import Tuple
 
 class GameSprite(pygame.sprite.Sprite):
     def __init__(self, filename, x, y, width, height, speed):
@@ -10,6 +11,54 @@ class GameSprite(pygame.sprite.Sprite):
         self.speed = speed
     def reset(self, win: pygame.Surface):
         win.blit(self.image, (self.rect.x, self.rect.y))
+    
+
+
+class Player(GameSprite):
+    def update(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and self.rect.x > 0:
+            self.rect.x -= self.speed
+        if keys[pygame.K_RIGHT] and self.rect.x < win_size[0] - self.rect.width:
+            self.rect.x += self.speed
+        if keys [pygame.K_UP] and self.rect.y > 0:
+            self.rect.y -= self.speed
+        if keys [pygame.K_DOWN] and self.rect.y < win_size[1] - self.rect.width:
+            self.rect.y += self.speed
+
+
+class Enemy(GameSprite):
+    def __init__(self, filename, x, y, width, height, speed):
+        super().__init__(filename, x, y, width, height, speed)
+        self.direction = "LEFT"
+    
+
+    def update(self):
+        if self.rect.x <= win_size[0] - 250: 
+            self.direction = "RIGHT"
+        if self.rect.x >= win_size[0] - self.rect.width:
+            self.direction = "LEFT"
+        if self.direction == "LEFT":
+            self.rect.x -= self.speed
+        else:
+            self.rect.x += self.speed
+    
+
+class Wall(pygame.sprite.Sprite):
+    def __init__(self, x:float, y:float, width:float, height:float, color:Tuple[int,int,int]):
+        super().__init__()
+        self.color = color
+        self.width = width
+        self.height = height
+        self.image = pygame.Surface((self.width, self.height))
+        self.image.fill(self.color)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+    
+    def reset(self):
+        win.blit(self.image, (self.rect.x, self.rect.y))
+
 
         
 
@@ -26,22 +75,38 @@ pygame.display.set_caption("Maze")
 
 clock = pygame.time.Clock()
 fps = 60
+wall_color = (255,0,0)
 
 background = pygame.transform.scale(pygame.image.load("assets/background.jpg"), win_size)
 
-player = GameSprite("assets/hero.png", 5, win_size[1]-80, 65, 65, 5)
-enemy = GameSprite("assets/cyborg.png", win_size[0]-80, 280, 65, 65, 2)
+player = Player("assets/hero.png", 5, win_size[1]-80, 65, 65, 5)
+enemy = Enemy("assets/cyborg.png", win_size[0]-80, 280, 65, 65, 2)
 finish = GameSprite("assets/treasure.png", win_size[0]-120, win_size[1]-80, 65, 65, 0)
+w1 = Wall(150, 150, 10, 220, wall_color)
+w2 = Wall(150, 150, 150, 10, wall_color)
+w3 = Wall(300, 150, 10, 100, wall_color)
+w4 = Wall(300, 250, 50, 10, wall_color)
+w5 = Wall(350, 150, 10, 110, wall_color)
+w6 = Wall(350, 150, 100, 10, wall_color)
+w7 = Wall(225, 225, 10, 150, wall_color)
+w8 = Wall(225, 325, 200, 10, wall_color)
+w9 = Wall(420, 225, 10, 110, wall_color)
 
+walls = [w1,w2,w3,w4,w5, w6, w7, w8, w9]
 run = True
 while run:
     win.blit(background, (0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-
+    player.update()
     player.reset(win)
+    enemy.update()
     enemy.reset(win)
+    for wall in walls:
+        wall.reset()
     finish.reset(win)
     pygame.display.update()
     clock.tick(fps)
+
+
