@@ -69,6 +69,9 @@ pygame.mixer.music.load("assets/jungles.ogg")
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play()
 
+kick = pygame.mixer.Sound("assets/kick.ogg")
+groshi = pygame.mixer.Sound("assets/money.ogg")
+
 win_size = (700, 500)
 win = pygame.display.set_mode(win_size)
 pygame.display.set_caption("Maze")
@@ -82,31 +85,69 @@ background = pygame.transform.scale(pygame.image.load("assets/background.jpg"), 
 player = Player("assets/hero.png", 5, win_size[1]-80, 65, 65, 5)
 enemy = Enemy("assets/cyborg.png", win_size[0]-80, 280, 65, 65, 2)
 finish = GameSprite("assets/treasure.png", win_size[0]-120, win_size[1]-80, 65, 65, 0)
-w1 = Wall(150, 150, 10, 220, wall_color)
+w1 = Wall(150, 0, 10, 400, wall_color)
 w2 = Wall(150, 150, 150, 10, wall_color)
 w3 = Wall(300, 150, 10, 100, wall_color)
 w4 = Wall(300, 250, 50, 10, wall_color)
 w5 = Wall(350, 150, 10, 110, wall_color)
 w6 = Wall(350, 150, 100, 10, wall_color)
-w7 = Wall(225, 225, 10, 150, wall_color)
-w8 = Wall(225, 325, 200, 10, wall_color)
-w9 = Wall(420, 225, 10, 110, wall_color)
+w7 = Wall(225, 225, 10, 300, wall_color)
+w8 = Wall(225, 330, 210, 10, wall_color)
+w9 = Wall(425, 225, 10, 110, wall_color)
+
+font = pygame.font.SysFont("Arial", 30, bold=True)
+font_big = pygame.font.Font(None, 70)
 
 walls = [w1,w2,w3,w4,w5, w6, w7, w8, w9]
 run = True
+end = False
+restart = False
+attempts = 1
+win_label = font_big.render("YOU WIN:3", True, (0,255,200))
 while run:
-    win.blit(background, (0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-    player.update()
-    player.reset(win)
-    enemy.update()
-    enemy.reset(win)
-    for wall in walls:
-        wall.reset()
-    finish.reset(win)
+    if not end:
+        win.blit(background, (0, 0))
+        player.update()
+        player.reset(win)
+        enemy.update()
+        enemy.reset(win)
+        for wall in walls:
+            wall.reset()
+        finish.reset(win)
+        
+        attempts_label = font.render(f"attempt: {attempts}", True, (255,255,255))
+        attempts_rect = attempts_label.get_rect()
+        attempts_rect.x, attempts_rect.y = (win_size[0] - 225, 20)
+        pygame.draw.rect(win, (0,0,0), attempts_rect)
+        win.blit(attempts_label, (win_size[0] - 225, 20))
+
+        for wall in walls:
+            if pygame.sprite.collide_rect(player, wall):
+                end = True
+                restart = True
+                kick.play()
+                attempts += 1
+        if pygame.sprite.collide_rect(player, enemy):
+            end = True
+            restart = True
+            kick.play()
+            attempts += 1
+
+        if pygame.sprite.collide_rect(player, finish):
+            end = True
+            groshi.play()
+            win.blit(win_label, (200,200))
+            
+
+    if restart:
+        player.rect.x, player.rect.y = 5, win_size[1]-80
+        enemy.rect.x, enemy.rect.y = win_size[0]-80, 280
+        restart = False
+        end = False
+    
+    
     pygame.display.update()
     clock.tick(fps)
-
-
