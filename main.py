@@ -1,5 +1,12 @@
 import pygame
 from typing import Tuple
+import os
+import sys
+
+if hasattr(sys, '_MEIPASS'):
+    base_path = sys._MEIPASS
+else:
+    base_path = os.path.abspath(".")
 
 class GameSprite(pygame.sprite.Sprite):
     def __init__(self, filename, x, y, width, height, speed):
@@ -65,26 +72,28 @@ class Wall(pygame.sprite.Sprite):
 pygame.init()
 
 pygame.mixer.init()
-pygame.mixer.music.load("assets/jungles.ogg")
+pygame.mixer.music.load(os.path.join(base_path, "assets", "jungles.ogg"))
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play()
 
-kick = pygame.mixer.Sound("assets/kick.ogg")
-groshi = pygame.mixer.Sound("assets/money.ogg")
+kick = pygame.mixer.Sound(os.path.join(base_path, "assets", "kick.ogg"))
+groshi = pygame.mixer.Sound(os.path.join(base_path, "assets", "money.ogg"))
 
 win_size = (700, 500)
 win = pygame.display.set_mode(win_size)
 pygame.display.set_caption("Maze")
 
+pygame.display.set_icon(pygame.image.load(os.path.join(base_path, "assets", "icon.png")))
+
 clock = pygame.time.Clock()
 fps = 60
 wall_color = (255,0,0)
 
-background = pygame.transform.scale(pygame.image.load("assets/background.jpg"), win_size)
+background = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "assets", "background.jpg")), win_size)
 
-player = Player("assets/hero.png", 5, win_size[1]-80, 65, 65, 5)
-enemy = Enemy("assets/cyborg.png", win_size[0]-80, 280, 65, 65, 2)
-finish = GameSprite("assets/treasure.png", win_size[0]-120, win_size[1]-80, 65, 65, 0)
+player = Player(os.path.join(base_path, "assets", "hero.png"), 5, win_size[1]-80, 65, 65, 5)
+enemy = Enemy(os.path.join(base_path, "assets", "cyborg.png"), win_size[0]-80, 280, 65, 65, 2)
+finish = GameSprite(os.path.join(base_path, "assets", "treasure.png"), win_size[0]-120, win_size[1]-80, 65, 65, 0)
 w1 = Wall(150, 0, 10, 400, wall_color)
 w2 = Wall(150, 150, 150, 10, wall_color)
 w3 = Wall(300, 150, 10, 100, wall_color)
